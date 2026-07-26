@@ -75,7 +75,7 @@ Paketleme **iki gruba** ayrılır (bkz. `gelistirmeler/13-zeus-framework-entegra
 
 ```bash
 # Module zaten kuruluysa (genel akış):
-./scripts/deploy.sh            # ./maven.sh clean package → ince WAR → WildFly'a deploy + marker bekle
+./scripts/deploy.sh            # mvn clean package → ince WAR → WildFly'a deploy + marker bekle
 ./scripts/deploy.sh --no-build # mevcut target/*.war'ı deploy et
 
 # 3. parti kütüphaneler değişince (sürüm/CVE yaması) paylaşımlı module'ü yenile (PLATFORM scripti):
@@ -100,7 +100,7 @@ Paketleme **iki gruba** ayrılır (bkz. `gelistirmeler/13-zeus-framework-entegra
 
 Lokal embedded çalıştırma:
 ```bash
-./maven.sh spring-boot:run -Dspring-boot.run.profiles=local   # http://localhost:2525/spring-wildfly-arch
+mvn spring-boot:run -Dspring-boot.run.profiles=local   # http://localhost:2525/spring-wildfly-arch
 ```
 IntelliJ: Spring Boot run config → Active profiles `local` (Oracle container açık olmalı).
 > `spring-boot-maven-plugin` skip'i yalnızca `repackage` execution'ında — `spring-boot:run` çalışır.

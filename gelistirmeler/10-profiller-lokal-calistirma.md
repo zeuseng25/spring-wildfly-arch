@@ -19,7 +19,7 @@ ojdbc `provided` scope ile lokal classpath'te (WAR'a/module'e girmez).
 
 **Maven:**
 ```bash
-./maven.sh spring-boot:run -Dspring-boot.run.profiles=local
+mvn spring-boot:run -Dspring-boot.run.profiles=local
 ```
 `local` profili sabit port **2525** ve context path **/spring-wildfly-arch** kullanır
 (WildFly 8080 ile çakışmaz, URL'ler WildFly ile aynı kalır; ekstra argüman gerekmez).

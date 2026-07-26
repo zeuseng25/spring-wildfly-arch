@@ -8,7 +8,7 @@ Build + deploy işlemini tek komutla, manuel çalıştırılabilir bir script il
 
 ## Kullanım
 ```bash
-./scripts/deploy.sh            # ./maven.sh clean package → WAR → WildFly'a deploy + marker bekle
+./scripts/deploy.sh            # mvn clean package → WAR → WildFly'a deploy + marker bekle
 ./scripts/deploy.sh --no-build # build atla, mevcut target/*.war'ı deploy et
 ```
 
@@ -18,7 +18,7 @@ WILDFLY_HOME=/baska/wildfly ./scripts/deploy.sh
 ```
 
 ## Ne yapar
-1. **Build:** `./maven.sh clean package` (— `--no-build` verilmedikçe).
+1. **Build:** `mvn clean package` (— `--no-build` verilmedikçe).
 2. `target/*.war`'ı bulur (`.original` hariç).
 3. WildFly `standalone/deployments/`'a eski marker'ları temizleyip `spring-wildfly-arch.war` adıyla kopyalar.
 4. WildFly çalışıyorsa `.deployed` marker'ını bekler; `.failed` çıkarsa içeriğini gösterip hata döner. Çalışmıyorsa "sunucu açılınca deploy edilecek" der.

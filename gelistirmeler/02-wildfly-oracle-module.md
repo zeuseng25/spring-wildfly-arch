@@ -7,7 +7,7 @@ WildFly'ın Oracle'a bağlanabilmesi için Oracle JDBC sürücüsü (`ojdbc11`) 
 
 1. Sürücüyü Maven'den indir:
 ```bash
-./maven.sh dependency:get -Dartifact=com.oracle.database.jdbc:ojdbc11:23.4.0.24.05
+mvn dependency:get -Dartifact=com.oracle.database.jdbc:ojdbc11:23.4.0.24.05
 ```
 
 2. Module dizinini oluştur ve jar'ı kopyala:
