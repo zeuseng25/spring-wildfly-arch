@@ -21,7 +21,7 @@ Basit zaman ölçer (JMH değil — warmup + ortalama). Tasarım kararları:
 ### Çalıştırma
 ```bash
 # Oracle container (fw-batch-oracle) açık olmalı
-./mvnw test -Dtest=RepositoryBenchmarkTest -Dbenchmark=true
+./maven.sh test -Dtest=RepositoryBenchmarkTest -Dbenchmark=true
 ```
 
 ## Sonuçlar

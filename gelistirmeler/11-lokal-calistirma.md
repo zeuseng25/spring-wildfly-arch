@@ -21,14 +21,14 @@ docker exec -i fw-batch-oracle sqlplus -s ABC/ABC@//localhost:1521/FREEPDB1 < sr
 docker exec -i fw-batch-oracle sqlplus -s ABC/ABC@//localhost:1521/FREEPDB1 < src/main/resources/db/procedures.sql
 ```
 
-Java 17 ve `./mvnw` yeterli. ojdbc sürücüsü `provided` scope ile lokal classpath'te (ekstra kurulum yok).
+Java 17 ve `./maven.sh` yeterli. ojdbc sürücüsü `provided` scope ile lokal classpath'te (ekstra kurulum yok).
 
 ---
 
 ## 2. Çalıştırma — Maven (terminal)
 
 ```bash
-./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+./maven.sh spring-boot:run -Dspring-boot.run.profiles=local
 ```
 `local` profili sabit **port 2525** kullanır (WildFly 8080 ile çakışmasın diye). Ekstra argüman gerekmez.
 

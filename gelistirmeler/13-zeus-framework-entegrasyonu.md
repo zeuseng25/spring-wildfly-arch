@@ -49,7 +49,7 @@ Bu sayede yalnızca zeus kodu değişince WAR yeniden deploy yeter; module (3. p
 
 ```bash
 # 1) Framework'ü kur (değiştiyse):
-cd ../zeus-fw && ./mvnw clean install
+cd ../zeus-fw && ./maven.sh clean install
 
 # 2) Paylaşımlı 3. parti module'ü yenile (yalnızca 3. parti bağımlılık değişince) + WildFly restart:
 cd ../zeus-fw && ./scripts/install-zeus-module.sh
@@ -60,9 +60,9 @@ cd ../zeus-fw && ./scripts/install-zeus-module.sh
 
 ## Doğrulama
 
-- `./mvnw clean package` → WAR `WEB-INF/lib` yalnızca `zeus-*.jar` içerir (3. parti yok).
-- `./mvnw test` → context yüklenir; loglarda "Zeus Base/Logger/Database/Service modülü yüklendi" görünür.
-- Lokal: `./mvnw spring-boot:run -Dspring.profiles.active=local` → her istekte `RequestLoggingFilter` log satırı.
+- `./maven.sh clean package` → WAR `WEB-INF/lib` yalnızca `zeus-*.jar` içerir (3. parti yok).
+- `./maven.sh test` → context yüklenir; loglarda "Zeus Base/Logger/Database/Service modülü yüklendi" görünür.
+- Lokal: `./maven.sh spring-boot:run -Dspring.profiles.active=local` → her istekte `RequestLoggingFilter` log satırı.
 
 ## İlgili
 

@@ -49,8 +49,8 @@ fi
 
 # --- 1) Build ---
 if [[ "${NO_BUILD}" != "1" ]]; then
-    echo ">> Build: ./mvnw clean package"
-    ./mvnw clean package
+    echo ">> Build: ./maven.sh clean package"
+    ./maven.sh clean package
 else
     echo ">> Build atlandı (--no-build)"
 fi
