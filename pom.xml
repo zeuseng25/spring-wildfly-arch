@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Zeus Framework parent: Spring Boot/Spring sürümleri, plugin yönetimi (ince WAR,
+         lombok, spring-boot) ve zeus BOM buradan miras alınır. spring-boot-starter-parent
+         zincirin tepesinde kalır (zeus-fw onu parent alır). -->
+    <parent>
+        <groupId>com.zeus</groupId>
+        <artifactId>zeus-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.zeus</groupId>
+    <artifactId>spring-wildfly-arch</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
+    <name>spring-wildfly-arch</name>
+    <description>spring-wildfly-arch</description>
+
+    <dependencies>
+        <!-- ================= Zeus Framework modülleri (WAR'a paketlenir) ================= -->
+        <!-- Sürümler zeus BOM tarafından yönetilir; burada yazılmaz. -->
+        <dependency>
+            <groupId>com.zeus</groupId>
+            <artifactId>zeus-base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.zeus</groupId>
+            <artifactId>zeus-logger</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.zeus</groupId>
+            <artifactId>zeus-database</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.zeus</groupId>
+            <artifactId>zeus-service</artifactId>
+        </dependency>
+
+        <!-- ============ 3. parti starter'lar (WAR'a KONMAZ, com.zeus module'ünden) ============ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- OpenAPI 3 + Swagger UI (sürüm zeus BOM'undan) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+
+
+        <!-- Oracle JDBC sürücüsü: SADECE 'local' profili (embedded Tomcat) için.
+             provided scope => WAR'a paketlenmez, com.zeus module'üne girmez
+             (WildFly'da sürücü zaten module/datasource olarak var), ama IntelliJ Run /
+             spring-boot:run classpath'inde bulunur. Sürüm zeus BOM'undan. -->
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc11</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Plugin konfigürasyonları zeus-parent pluginManagement'tan gelir:
+                 - spring-boot-maven-plugin: repackage skip (ince WAR), spring-boot:run açık
+                 - maven-war-plugin: zeus-* WAR'a, 3. parti hariç (%regex)
+                 - maven-compiler-plugin: Lombok annotation processor yolu -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
