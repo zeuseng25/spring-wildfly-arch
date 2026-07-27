@@ -13,9 +13,9 @@ Bu dosya projenin mimarisini ve çalışma kurallarını tanımlar. Claude Code 
 
 ## Proje Özeti
 
-Spring Boot 3.1.3 (Java 17) tabanlı, **WAR** olarak paketlenip **WildFly 27**'ye deploy edilen bir REST uygulaması. Veritabanı **Oracle** (Docker), bağlantı **WildFly JNDI datasource** (`OracleDS`) üzerinden yapılır.
+Spring Boot 4.0.7 (Java 25) tabanlı, **WAR** olarak paketlenip **WildFly 41**'e deploy edilen bir REST uygulaması. Veritabanı **Oracle** (Docker), bağlantı **WildFly JNDI datasource** (`OracleDS`) üzerinden yapılır.
 
-**Parent: Zeus Framework.** Proje, üst dizindeki `../zeus-fw` (Zeus Framework) üzerine kuruludur; pom parent'ı `com.zeus:zeus-parent` (zinciri `zeus-fw → spring-boot-starter-parent:3.1.3`). Ortak altyapı framework modüllerinden gelir: `zeus-base` (hata yönetimi: `GlobalExceptionHandler` + `ResourceNotFoundException`), `zeus-logger` (`RequestLoggingFilter`), `zeus-database`/`zeus-service` (iskelet). Spring/Spring Boot ve `springdoc`/`ojdbc` sürümleri zeus BOM'dan yönetilir (pom'da yazılmaz). Detay: `gelistirmeler/13-zeus-framework-entegrasyonu.md`.
+**Parent: Zeus Framework.** Proje, üst dizindeki `../zeus-fw` (Zeus Framework) üzerine kuruludur; pom parent'ı `com.zeus:zeus-parent` (zinciri `zeus-fw → spring-boot-starter-parent:4.0.7`). Ortak altyapı framework modüllerinden gelir: `zeus-base` (hata yönetimi: `GlobalExceptionHandler` + `ResourceNotFoundException`), `zeus-logger` (`RequestLoggingFilter`), `zeus-database`/`zeus-service` (iskelet). Spring/Spring Boot ve `springdoc`/`ojdbc` sürümleri zeus BOM'dan yönetilir (pom'da yazılmaz). Detay: `gelistirmeler/13-zeus-framework-entegrasyonu.md`.
 
 ## Mimari — Katmanlı (Controller → Service → Repository)
 
@@ -34,7 +34,7 @@ HTTP → Controller → Service (interface + impl) → Repository (interface + i
 - **config/** — `OpenApiConfig` (OpenAPI 3 metadata).
 
 ### API Dokümantasyonu — OpenAPI 3 / Swagger
-springdoc-openapi v2 ile otomatik. Erişim (context `/spring-wildfly-arch`):
+springdoc-openapi v3 ile otomatik. Erişim (context `/spring-wildfly-arch`):
 - OpenAPI JSON: `/v3/api-docs` · Swagger UI: `/swagger-ui/index.html`
 - springdoc jar'ları da `com.zeus` module'ünde (bkz. `gelistirmeler/09-openapi-swagger.md`).
 
@@ -84,7 +84,7 @@ Paketleme **iki gruba** ayrılır (bkz. `gelistirmeler/13-zeus-framework-entegra
 ```
 
 - WAR `target/spring-wildfly-arch-0.0.1-SNAPSHOT.war` olarak üretilir, deploy'da `spring-wildfly-arch.war` adıyla kopyalanır.
-- **WildFly:** `/Users/omer/workspaces/intellij/wildfy-27/wildfly-27.0.1.Final` (env: `WILDFLY_HOME`). Başlat: `$WILDFLY_HOME/bin/standalone.sh`.
+- **WildFly:** `/Users/omer/workspaces/intellij/wildfly-41/wildfly-41.0.0.Final` (env: `WILDFLY_HOME`). Başlat: `$WILDFLY_HOME/bin/standalone.sh`.
 - Uygulama: `http://localhost:8080/spring-wildfly-arch/` — API: `/api/products`.
 - `WEB-INF/jboss-deployment-structure.xml` **app repo'sunda TUTULMAZ — framework build'de üretir**
   (zeus-fw `zeus-war-defaults` şablonu + zeus-parent profili; slot `zeus.module.slot`'tan dolar).
@@ -109,7 +109,7 @@ IntelliJ: Spring Boot run config → Active profiles `local` (Oracle container a
 
 - **Oracle (Docker):** container `fw-batch-oracle`, kullanıcı/şifre `ABC`/`ABC`, PDB `FREEPDB1`, port 1521. URL: `jdbc:oracle:thin:@//localhost:1521/FREEPDB1`.
   - Şema uygula: `docker exec -i fw-batch-oracle sqlplus -s ABC/ABC@//localhost:1521/FREEPDB1 < src/main/resources/db/schema.sql` (önce schema, sonra procedures).
-- **WildFly datasource:** JNDI `java:jboss/datasources/OracleDS`, Oracle JDBC module `com.oracle.ojdbc` (ojdbc11). Tanım: WildFly `standalone.xml`.
+- **WildFly datasource:** JNDI `java:jboss/datasources/OracleDS`, Oracle JDBC module `com.oracle.ojdbc` (ojdbc17). Tanım: WildFly `standalone.xml`.
 - **WildFly yönetim konsolu:** http://localhost:9990/console/index.html — kullanıcı `admin` / şifre `Wildfly@123` (ManagementRealm). Hesap `add-user.sh` ile oluşturuldu; değiştirmek için `$WILDFLY_HOME/bin/add-user.sh -u admin -p 'YeniSifre'`.
 - **Test:** `@SpringBootTest` context-load testi gömülü **H2** ile çalışır (`src/test/resources/application.properties`); WildFly/JNDI gerekmez.
 
@@ -128,7 +128,7 @@ Bu projede yapılan her bileşen/geliştirme `gelistirmeler/` klasöründe **com
 
 - Doküman / `.md` dosyaları **yalnızca proje dizinine** yazılır. Proje dizini dışına md yazılmaz.
 - Proje dizini dışında şu iki dizine yazılabilir; başka dizinlere yazma yapılmaz:
-  - **WildFly dizini** (`/Users/omer/workspaces/intellij/wildfy-27/wildfly-27.0.1.Final`) — deploy/module.
+  - **WildFly dizini** (`/Users/omer/workspaces/intellij/wildfly-41/wildfly-41.0.0.Final`) — deploy/module.
   - **Zeus Framework dizini** (`../zeus-fw`, `/Users/omer/workspaces/intellij/spring-wildfly-upgrade/zeus-fw`)
     — yalnızca **platform** değişiklikleri için (paylaşımlı module üretimi, BOM/parent, aggregator modül).
     Uygulamaya özel kod ve `.md` dokümanlar yine yalnızca proje dizinine yazılır.

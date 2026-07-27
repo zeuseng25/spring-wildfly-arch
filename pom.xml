@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.zeus</groupId>
         <artifactId>zeus-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>2.0.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -42,9 +42,10 @@
         </dependency>
 
         <!-- ============ 3. parti starter'lar (WAR'a KONMAZ, com.zeus module'ünden) ============ -->
+        <!-- Boot 4: starter-web'in yerini starter-webmvc aldı. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -80,7 +81,7 @@
              spring-boot:run classpath'inde bulunur. Sürüm zeus BOM'undan. -->
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc11</artifactId>
+            <artifactId>ojdbc17</artifactId>
             <scope>provided</scope>
         </dependency>
 

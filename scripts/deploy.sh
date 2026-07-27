@@ -14,7 +14,7 @@
 set -euo pipefail
 
 # --- Ayarlar ---
-WILDFLY_HOME="${WILDFLY_HOME:-/Users/omer/workspaces/intellij/wildfy-27/wildfly-27.0.1.Final}"
+WILDFLY_HOME="${WILDFLY_HOME:-/Users/omer/workspaces/intellij/wildfly-41/wildfly-41.0.0.Final}"
 WAR_NAME="spring-wildfly-arch.war"            # deploy edilen sabit isim (context: /spring-wildfly-arch)
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEPLOY_DIR="${WILDFLY_HOME}/standalone/deployments"
