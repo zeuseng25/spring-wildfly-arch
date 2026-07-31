@@ -6,6 +6,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# MS Office geçici kilit dosyaları (dosya Excel'de açıkken oluşur)
+~$*
+
 ### STS ###
 .apt_generated
 .classpath
