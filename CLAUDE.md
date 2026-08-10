@@ -33,6 +33,21 @@ HTTP → Controller → Service (interface + impl) → Repository (interface + i
 - **Hata yönetimi** — `ResourceNotFoundException` + `GlobalExceptionHandler` (`@RestControllerAdvice`, `ProblemDetail`) artık **`zeus-base`'ten** gelir (uygulamada `exception/` paketi yoktur; bkz. `gelistirmeler/13-zeus-framework-entegrasyonu.md`).
 - **config/** — `OpenApiConfig` (OpenAPI 3 metadata).
 
+### AI Katmanı — zeus-ai / Spring AI 2.x
+
+`/api/ai/**` uçları LLM destekli çalışır ve framework'ün `ZeusAiAssistant` sözleşmesine bağlanır
+(uygulama kodu Spring AI API'sini import etmez; tek istisna `@Tool` anotasyonudur):
+- `GET /api/ai/products/{id}/description` — sohbet · `GET .../insight` — yapılandırılmış çıktı
+  (`ProductInsight` record) · `POST /api/ai/catalog/ask` — **tool calling**.
+- `ai/ProductAiTools` `@Tool` metotları **mevcut `ProductRepository`'yi** çağırır → veri yine
+  Oracle `PRODUCT_PKG` stored procedure'lerinden gelir. Model DB'ye doğrudan erişmez, SQL üretmez.
+- Sağlayıcı OpenAI-uyumlu endpoint'tir; hedef `AI_BASE_URL` ile değişir (PROD: vLLM,
+  geliştirme: OpenRouter). **Anahtar repoda tutulmaz**, `AI_API_KEY` ortam değişkeninden gelir.
+- Spring AI jar'ları 3. partidir → `com.zeus` module'ünde; `zeus-ai` jar'ı WAR içinde.
+  Sürüm/bağımlılık değişince module yenilenir + WildFly restart.
+- Detay: `gelistirmeler/18-spring-ai-entegrasyonu.md` · sürüm gerekçesi:
+  `gelistirmeler/17-spring-ai-surum-secimi.md` · framework: `../zeus-fw/gelistirmeler/15-zeus-ai.md`.
+
 ### API Dokümantasyonu — OpenAPI 3 / Swagger
 springdoc-openapi v3 ile otomatik. Erişim (context `/spring-wildfly-arch`):
 - OpenAPI JSON: `/v3/api-docs` · Swagger UI: `/swagger-ui/index.html`

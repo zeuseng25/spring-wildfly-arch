@@ -40,6 +40,12 @@
             <groupId>com.zeus</groupId>
             <artifactId>zeus-service</artifactId>
         </dependency>
+        <!-- LLM erişimi: ZeusAiAssistant (sohbet + yapılandırılmış çıktı + tool calling).
+             Spring AI'ın 3. parti jar'ları com.zeus module'ünden gelir; WAR'a girmez. -->
+        <dependency>
+            <groupId>com.zeus</groupId>
+            <artifactId>zeus-ai</artifactId>
+        </dependency>
 
         <!-- ============ 3. parti starter'lar (WAR'a KONMAZ, com.zeus module'ünden) ============ -->
         <!-- Boot 4: starter-web'in yerini starter-webmvc aldı. -->
