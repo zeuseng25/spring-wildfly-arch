@@ -15,7 +15,12 @@
 - DataSource neden profilde: `jndi-name` ile `url` aynı anda olamaz; profil ile ayrıştırıldı.
 
 ## Lokal çalıştırma (embedded Tomcat)
-ojdbc `provided` scope ile lokal classpath'te (WAR'a/module'e girmez).
+Oracle sürücüsü uygulama pom'unda **bildirilmez**: `zeus-database` onu compile scope'ta
+geçişli olarak getirir (framework kararı — platform Oracle-only, her uygulama aynı bloğu
+tekrar yazmasın). Böylece `spring-boot:run` / IntelliJ Run classpath'inde hazırdır.
+WAR'a girmez (`packagingExcludes` zeus-* dışını atar) ve `com.zeus` module'üne girmez
+(`install-zeus-module.sh` EXCLUDE_REGEX'i ojdbc'yi dışlar) — WildFly'da sürücü sunucunun
+kendi `com.oracle.ojdbc` module'ünden gelir.
 
 **Maven:**
 ```bash

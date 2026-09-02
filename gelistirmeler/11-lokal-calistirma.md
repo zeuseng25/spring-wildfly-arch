@@ -21,7 +21,9 @@ docker exec -i fw-batch-oracle sqlplus -s ABC/ABC@//localhost:1521/FREEPDB1 < sr
 docker exec -i fw-batch-oracle sqlplus -s ABC/ABC@//localhost:1521/FREEPDB1 < src/main/resources/db/procedures.sql
 ```
 
-Java 17 ve `mvn` yeterli. ojdbc sürücüsü `provided` scope ile lokal classpath'te (ekstra kurulum yok).
+**Java 25** ve `mvn` yeterli (kabuğun varsayılan JDK'sı 17 ise:
+`export JAVA_HOME=/opt/homebrew/opt/openjdk@25`). Oracle sürücüsü için ekstra kurulum yok —
+`zeus-database` onu compile scope'ta geçişli getirir, uygulama pom'unda bildirilmez.
 
 ---
 
@@ -89,7 +91,7 @@ curl -X POST http://localhost:2525/spring-wildfly-arch/api/products \
 ## Lokal vs WildFly (özet)
 | | Lokal (`local`) | WildFly (`wildfly`) |
 |--|-----------------|---------------------|
-| Sunucu | Embedded Tomcat (`spring-boot:run`) | WildFly 27 (WAR deploy) |
+| Sunucu | Embedded Tomcat (`spring-boot:run`) | WildFly 41 (WAR deploy) |
 | DataSource | Doğrudan JDBC (ABC/ABC) | JNDI `OracleDS` + JTA |
 | Port | `2525` | `8080` |
 | Context path | `/spring-wildfly-arch` | `/spring-wildfly-arch` |

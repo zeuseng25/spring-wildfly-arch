@@ -24,7 +24,7 @@ WILDFLY_HOME=/baska/wildfly ./scripts/deploy.sh
 4. WildFly çalışıyorsa `.deployed` marker'ını bekler; `.failed` çıkarsa içeriğini gösterip hata döner. Çalışmıyorsa "sunucu açılınca deploy edilecek" der.
 
 ## Varsayılanlar
-- `WILDFLY_HOME` = `/Users/omer/workspaces/intellij/wildfy-27/wildfly-27.0.1.Final`
+- `WILDFLY_HOME` = `/Users/omer/workspaces/intellij/wildfly-41/wildfly-41.0.0.Final`
 - Deploy adı: `spring-wildfly-arch.war` → context `/spring-wildfly-arch`
 - Başarı çıktısı: `✅ DEPLOY BAŞARILI: http://localhost:8080/spring-wildfly-arch/`
 

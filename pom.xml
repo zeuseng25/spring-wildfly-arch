@@ -81,21 +81,15 @@
         </dependency>
 
 
-        <!-- Oracle JDBC sürücüsü: SADECE 'local' profili (embedded Tomcat) için.
-             provided scope => WAR'a paketlenmez, com.zeus module'üne girmez
-             (WildFly'da sürücü zaten module/datasource olarak var), ama IntelliJ Run /
-             spring-boot:run classpath'inde bulunur. Sürüm zeus BOM'undan. -->
-        <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc17</artifactId>
-            <scope>provided</scope>
-        </dependency>
+        <!-- Oracle JDBC sürücüsü BURADA BİLDİRİLMEZ: zeus-database onu compile scope'ta
+             getirir (framework kararı). 'local' profilde embedded Tomcat için classpath'te
+             hazırdır; WAR'a ve com.zeus module'üne girmez.
+             Detay: ../zeus-fw/gelistirmeler/08-wildfly-module-dagitim.md -->
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
+        <!-- spring-boot-starter-test BURADA BİLDİRİLMEZ: zeus-parent tüm projelere test
+             scope'unda verir (JUnit 5 motoru garanti altında; olmazsa surefire sessizce
+             JUnit3Provider'a düşer ve testler hiç koşmadan build yeşil geçer).
+             Detay: ../zeus-fw/gelistirmeler/07-bom-parent-surum-yonetimi.md -->
 
         <dependency>
             <groupId>com.h2database</groupId>

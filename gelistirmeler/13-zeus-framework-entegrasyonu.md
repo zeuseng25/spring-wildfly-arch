@@ -12,14 +12,15 @@
 <parent>
     <groupId>com.zeus</groupId>
     <artifactId>zeus-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <relativePath/>
 </parent>
 ```
 
-`zeus-parent` zinciri `zeus-fw → spring-boot-starter-parent:3.1.3` olduğundan Spring Boot/Spring (6.0.11) yönetimi ve plugin yapılandırması yine miras alınır. Kazanımlar:
+`zeus-parent` zinciri `zeus-fw → spring-boot-starter-parent:4.0.7` olduğundan Spring Boot/Spring (7.0.x) yönetimi ve plugin yapılandırması yine miras alınır. Kazanımlar:
 - `java.version`, `spring-framework.version` artık pom'da **yok** (framework'ten gelir).
-- `springdoc`, `ojdbc11` **sürümleri yazılmaz** (zeus BOM yönetir).
+- `springdoc` **sürümü yazılmaz** (zeus BOM yönetir).
+- `ojdbc17` **hiç yazılmaz** — `zeus-database` onu compile scope'ta geçişli getirir.
 - `maven-war-plugin` / `spring-boot-maven-plugin` / `maven-compiler-plugin` konfigürasyonları `zeus-parent` pluginManagement'tan gelir; pom'da yalnızca plugin'ler **devreye alınır** (config yok).
 
 ## Kullanılan Zeus Modülleri

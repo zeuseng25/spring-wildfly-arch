@@ -4,14 +4,17 @@
 REST API için otomatik OpenAPI 3 dokümanı ve interaktif Swagger UI.
 
 ## Kütüphane
-Spring Boot 3.1 için **springdoc-openapi v2** (`pom.xml`):
+Spring Boot 4 için **springdoc-openapi v3** (`pom.xml`) — **sürüm yazılmaz**, zeus BOM yönetir
+(`springdoc-openapi.version`, şu an `3.1.0`):
 ```xml
 <dependency>
     <groupId>org.springdoc</groupId>
     <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-    <version>2.2.0</version>
 </dependency>
 ```
+
+> springdoc **2.x Boot 4 ile ÇALIŞMAZ** (Framework 7 / Jakarta EE 11 uyumsuzluğu);
+> 3.x hattı zorunludur. Bkz. `16-java25-boot4-wildfly41-yukseltme.md`.
 Controller'ları otomatik tarar; ek anotasyon gerekmez. Metadata için bir bean:
 `config/OpenApiConfig.java` → `OpenAPI` bean (title, description, version).
 

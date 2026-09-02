@@ -1,7 +1,7 @@
 # 06 — WildFly Deployment (WAR)
 
 ## Amaç
-Uygulama embedded sunucu yerine **WAR** olarak paketlenip WildFly 27'ye deploy edilir.
+Uygulama embedded sunucu yerine **WAR** olarak paketlenip WildFly 41'e deploy edilir.
 
 ## WAR paketleme
 - `pom.xml`: `<packaging>war</packaging>`.
@@ -13,20 +13,22 @@ Spring Boot Logback ile WildFly'ın `slf4j-jboss-logmanager`'ı çakışır:
 ```
 LoggerFactory is not a Logback LoggerContext but Logback is on the classpath
 ```
-Çözüm — `src/main/webapp/WEB-INF/jboss-deployment-structure.xml`:
-```xml
-<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.3">
-    <deployment>
-        <exclude-subsystems>
-            <subsystem name="logging"/>
-        </exclude-subsystems>
-        <exclusions>
-            <module name="org.slf4j"/>
-        </exclusions>
-    </deployment>
-</jboss-deployment-structure>
-```
-Bu sayede Spring Boot kendi Logback'ini kullanır. **Silme/değiştirme.**
+Çözüm, `WEB-INF/jboss-deployment-structure.xml`'de `logging` subsystem'ini dışlamaktır;
+böylece Spring Boot kendi Logback'ini kullanır.
+
+> **GÜNCEL DURUM — bu dosya artık app repo'sunda TUTULMAZ.** Framework build sırasında
+> üretir: `zeus-war-defaults` şablonu + `zeus-parent`'ın `zeus-generated-descriptor`
+> profili, `${zeus.module.slot}` doldurularak WAR'ın `WEB-INF`'ine konur. Uygulamada
+> `src/main/webapp/WEB-INF/jboss-deployment-structure.xml` **oluşturma** — üretilen dosya
+> onu ezer ve iki kaynak birbirinden ayrışır.
+>
+> Üretilen içerik `logging` dışlamasına ek olarak `weld`, `batch-jberet`, `jsf`, `jaxrs`
+> subsystem'lerini de dışlar ve `com.zeus` module bağımlılığını ekler. Eski `org.slf4j`
+> module dışlaması **kaldırıldı** — WildFly 41'de o module yok; slf4j/logback zaten
+> `com.zeus` module'ünden geliyor.
+>
+> Detay: `../zeus-fw/gelistirmeler/10-versiyonlu-slot-uretilen-descriptor.md` ve
+> `08-com-zeus-module.md`.
 
 > **Güncelleme:** Bu dosya artık app repo'sunda durmuyor — framework build'de üretiyor
 > (şablon: zeus-fw `zeus-war-defaults`; yukarıdaki dışlamalar şablonda aynen var).

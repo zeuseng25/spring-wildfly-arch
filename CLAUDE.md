@@ -15,7 +15,7 @@ Bu dosya projenin mimarisini ve çalışma kurallarını tanımlar. Claude Code 
 
 Spring Boot 4.0.7 (Java 25) tabanlı, **WAR** olarak paketlenip **WildFly 41**'e deploy edilen bir REST uygulaması. Veritabanı **Oracle** (Docker), bağlantı **WildFly JNDI datasource** (`OracleDS`) üzerinden yapılır.
 
-**Parent: Zeus Framework.** Proje, üst dizindeki `../zeus-fw` (Zeus Framework) üzerine kuruludur; pom parent'ı `com.zeus:zeus-parent` (zinciri `zeus-fw → spring-boot-starter-parent:4.0.7`). Ortak altyapı framework modüllerinden gelir: `zeus-base` (hata yönetimi: `GlobalExceptionHandler` + `ResourceNotFoundException`), `zeus-logger` (`RequestLoggingFilter`), `zeus-database`/`zeus-service` (iskelet). Spring/Spring Boot ve `springdoc`/`ojdbc` sürümleri zeus BOM'dan yönetilir (pom'da yazılmaz). Detay: `gelistirmeler/13-zeus-framework-entegrasyonu.md`.
+**Parent: Zeus Framework.** Proje, üst dizindeki `../zeus-fw` (Zeus Framework) üzerine kuruludur; pom parent'ı `com.zeus:zeus-parent` (zinciri `zeus-fw → spring-boot-starter-parent:4.0.7`). Ortak altyapı framework modüllerinden gelir: `zeus-base` (hata yönetimi: `GlobalExceptionHandler` + `ResourceNotFoundException`), `zeus-logger` (`RequestLoggingFilter`), `zeus-database` (`StoredProcedureExecutor` / `JpaStoredProcedureExecutor`), `zeus-service` (`AbstractCrudService` + `DtoMapper`). Spring/Spring Boot ve `springdoc` sürümleri zeus BOM'dan yönetilir (pom'da yazılmaz); Oracle sürücüsü `zeus-database` üzerinden geçişli gelir, pom'da hiç bildirilmez. Detay: `gelistirmeler/13-zeus-framework-entegrasyonu.md`.
 
 ## Mimari — Katmanlı (Controller → Service → Repository)
 
@@ -30,6 +30,7 @@ HTTP → Controller → Service (interface + impl) → Repository (interface + i
 - **repository/** — Veri erişimi. `ProductRepository` (interface). **JpaRepository KULLANILMAZ.** Impl'ler framework'ün `zeus-database` helper'larını (`StoredProcedureExecutor` / `JpaStoredProcedureExecutor`) kullanır.
 - **dto/** — `ProductRequest` (giriş, `@Valid`), `ProductResponse` (çıkış). Model dışarı sızdırılmaz.
 - **model/** — `Product` domain nesnesi (`@Entity`, ama Spring Data repository yok).
+- **İzlenebilirlik** — Her isteğe `X-Correlation-Id` atanır (varsa gelen header korunur, yoksa üretilir) ve isteğin tüm log satırlarına `[correlationId]` olarak basılır; giden HTTP/SOAP çağrılarına ve Oracle oturumuna (`v$session.client_identifier`) taşınır. Uygulama kodu taşıma yapmaz. Ana sınıf bu yüzden `ZeusServletInitializer`'ı genişletir. Detay: `../zeus-fw/gelistirmeler/18-correlation-id.md`.
 - **Hata yönetimi** — `ResourceNotFoundException` + `GlobalExceptionHandler` (`@RestControllerAdvice`, `ProblemDetail`) artık **`zeus-base`'ten** gelir (uygulamada `exception/` paketi yoktur; bkz. `gelistirmeler/13-zeus-framework-entegrasyonu.md`).
 - **config/** — `OpenApiConfig` (OpenAPI 3 metadata).
 
@@ -111,7 +112,7 @@ Paketleme **iki gruba** ayrılır (bkz. `gelistirmeler/13-zeus-framework-entegra
 
 İki profil (DataSource ayrımı). Detay: `gelistirmeler/10-profiller-lokal-calistirma.md`.
 - **`wildfly`** (varsayılan): JNDI datasource + JTA → WAR olarak WildFly'a deploy.
-- **`local`**: doğrudan JDBC (ABC/ABC@FREEPDB1) → lokal embedded Tomcat, sabit port **2525** + context path **/spring-wildfly-arch** (WildFly ile çakışmaz, URL'ler aynı). ojdbc `provided` scope.
+- **`local`**: doğrudan JDBC (ABC/ABC@FREEPDB1) → lokal embedded Tomcat, sabit port **2525** + context path **/spring-wildfly-arch** (WildFly ile çakışmaz, URL'ler aynı). Oracle sürücüsü **bu pom'da bildirilmez** — `zeus-database` onu compile scope'ta getirir; WAR'a ve `com.zeus` module'üne girmez (bkz. `../zeus-fw/gelistirmeler/08-wildfly-module-dagitim.md`).
 
 Lokal embedded çalıştırma:
 ```bash
