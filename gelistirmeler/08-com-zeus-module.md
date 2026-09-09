@@ -52,8 +52,13 @@ runtime'da dokunduğu her şey de module'de olmalı → pratikte tüm 3. parti k
 `jakarta.*-api`'ler module'e KONMAZ; WildFly server module'lerinden `export="true"` ile
 verilir (çift sınıf / LinkageError önler, deployment annotation'ları görür).
 
-### 3) WAR'dan lib'leri çıkarma — `pom.xml`
-- `maven-war-plugin`: `<packagingExcludes>WEB-INF/lib/*.jar</packagingExcludes>`
+### 3) WAR'dan lib'leri çıkarma — **framework yönetir**, app pom'unda ayar YOK
+- Dışlama `zeus-parent`'taki `zeus.war.packaging-excludes` property'siyle yapılır ve bu property
+  **üretilir** (`../zeus-fw/scripts/generate-war-excludes.sh`): module'ün sağladığı jar'lar atılır,
+  module'de olmayan her şey WAR'da taşınır. Uygulama bu konuda hiçbir şey yazmaz.
+  Detay: `../zeus-fw/gelistirmeler/19-war-paketleme-module-farkindaligi.md`.
+  (Bu dokümanın ilk yazıldığı dönemde ayar app pom'undaydı ve `WEB-INF/lib/*.jar` biçimindeydi;
+  ikisi de artık geçerli değil.)
 - `spring-boot-maven-plugin`: `<skip>true</skip>` — repackage bağımlılıkları WEB-INF/lib'e
   geri eklediğinden kapatılır (WildFly'da executable WAR gerekmez).
 

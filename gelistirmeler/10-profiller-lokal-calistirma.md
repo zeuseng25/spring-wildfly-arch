@@ -18,7 +18,9 @@
 Oracle sürücüsü uygulama pom'unda **bildirilmez**: `zeus-database` onu compile scope'ta
 geçişli olarak getirir (framework kararı — platform Oracle-only, her uygulama aynı bloğu
 tekrar yazmasın). Böylece `spring-boot:run` / IntelliJ Run classpath'inde hazırdır.
-WAR'a girmez (`packagingExcludes` zeus-* dışını atar) ve `com.zeus` module'üne girmez
+WAR'a girmez (`zeus.war.packaging-excludes`'un **sabit kuyruğu** `ojdbc*`'yi her zaman dışlar —
+denylist'e geçildikten sonra bu artık açık bir kuraldır, "zeus- olmayanı at"ın yan etkisi değil)
+ve `com.zeus` module'üne girmez
 (`install-zeus-module.sh` EXCLUDE_REGEX'i ojdbc'yi dışlar) — WildFly'da sürücü sunucunun
 kendi `com.oracle.ojdbc` module'ünden gelir.
 

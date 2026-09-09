@@ -41,7 +41,8 @@
 | **zeus-* jar'ları** | WAR içinde (`WEB-INF/lib`) |
 | **3. parti jar'lar** (Spring, Hibernate, ...) | WildFly `com.zeus` module |
 
-- `zeus-parent`'taki `maven-war-plugin`: `<packagingExcludes>%regex[WEB-INF/lib/(?!zeus-).*\.jar]</packagingExcludes>` → zeus-* hariç tüm jar'ları WAR'dan dışlar. Sonuç WAR ≈ **40 KB** (4 zeus jar + sınıflar).
+- `zeus-parent`'taki `maven-war-plugin`, `zeus.war.packaging-excludes` property'sini kullanır. Bu property **DENYLIST**'tir ve `../zeus-fw/scripts/generate-war-excludes.sh` tarafından `zeus-wildfly-module`'ün bağımlılık kapanışından üretilir: **module'ün sağladığı** jar'lar dışlanır, module'de olmayan her şey WAR'da taşınır. `zeus-*` jar'ları listede yer almaz (module'e girmezler), dolayısıyla WAR'da kalırlar. Bu uygulamanın kapanışı module tarafından tam karşılandığı için sonuç WAR yine yalnızca zeus jar'ları + sınıflar.
+  > Eskiden kural ters yöndeydi (`%regex[WEB-INF/lib/(?!zeus-).*\.jar]` — "zeus- olmayan her şeyi at"). O kuralda module'de bulunmayan bir bağımlılık **sessizce siliniyor** ve WildFly'da kriptik bir `NoClassDefFoundError` olarak ortaya çıkıyordu. Gerekçe ve ölçümler: `../zeus-fw/gelistirmeler/19-war-paketleme-module-farkindaligi.md`.
 - `../zeus-fw/scripts/install-zeus-module.sh` (platform scripti): `EXCLUDE_REGEX`'e `zeus-(base|logger|database|service|redis|batch)` eklendi → zeus-* jar'ları module'e **konmaz** (WAR'da oldukları için; çift sınıf/LinkageError önlenir).
 
 Bu sayede yalnızca zeus kodu değişince WAR yeniden deploy yeter; module (3. parti) değişmediği için WildFly restart gerekmez.

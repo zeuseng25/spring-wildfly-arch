@@ -72,10 +72,19 @@ Yeni bir veri erişim metodu eklerken: önce PL/SQL procedure'ü `procedures.sql
 ## İnce WAR + com.zeus Module (ÖNEMLİ mimari karar)
 
 Paketleme **iki gruba** ayrılır (bkz. `gelistirmeler/13-zeus-framework-entegrasyonu.md`):
-- **zeus-* (framework) jar'ları → WAR içine** (`WEB-INF/lib`). `zeus-parent`'taki
-  `maven-war-plugin`: `<packagingExcludes>%regex[WEB-INF/lib/(?!zeus-).*\.jar]</packagingExcludes>`.
-- **Tüm 3. parti kütüphaneler** (Spring, Spring Boot, Hibernate, Jackson, ...) → WAR'a paketlenmez;
-  WildFly `com.zeus` **module**'ünden gelir.
+- **Kural DENYLIST'tir:** `com.zeus` module'ünün **sağladığı** jar'lar WAR'a konmaz; module'de
+  **olmayan** her şey WAR'da taşınır. Dışlama listesi elle yazılmaz — `zeus-parent`'taki
+  `zeus.war.packaging-excludes` property'si, `../zeus-fw/scripts/generate-war-excludes.sh`
+  tarafından module sözleşmesinin bağımlılık kapanışından **üretilir**.
+  (Eskiden tersiydi: "adı `zeus-` ile başlamayan her jar'ı at". O kuralda module'de olmayan bir
+  bağımlılık sessizce siliniyor ve WildFly'da `NoClassDefFoundError` olarak geri dönüyordu —
+  gerekçe: `../zeus-fw/gelistirmeler/19-war-paketleme-module-farkindaligi.md`.)
+- **zeus-* jar'ları → WAR içine** (`WEB-INF/lib`): module'e hiç girmedikleri için listede de yoklar.
+- **Module'ün sağladığı 3. parti kütüphaneler** (Spring, Spring Boot, Hibernate, Jackson, ...) →
+  WAR'a paketlenmez; WildFly `com.zeus` **module**'ünden gelir.
+- Ayrıca sabit bir kuyruk her zaman dışlanır: `ojdbc*`/`orai18n`/`ucp*` (sunucunun kendi
+  `com.oracle.ojdbc` module'ünden gelir), `jakarta.*-api` (WildFly server module'leri),
+  `tomcat-embed-*`/`spring-boot-*tomcat*` (WildFly Undertow kullanır), `lombok`, `jarmode`.
 - WAR ≈ **40 KB** (yalnızca 4 zeus jar + uygulama sınıfları). 3. parti `com.zeus` module'ünde (sunucuda bir kez).
 - Neden 3. partinin hepsi module'de: WildFly module classloader'ı WAR sınıflarını göremez; Spring runtime'da
   neye dokunuyorsa o da module'de olmalı (yoksa NoClassDef/JSON kırılır). "Sadece Spring" çalışmaz.
