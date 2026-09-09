@@ -21,7 +21,18 @@
     <name>spring-wildfly-arch</name>
     <description>spring-wildfly-arch</description>
 
+    <properties>
+        <!-- zeus-sms opt-in: standart tip uygulama com.zeus.soap'u (CXF) descriptor'a elle ekler.
+             Slot değeri zeus-parent'tan (zeus.soap.module.slot) gelir. -->
+        <zeus.descriptor.extra.modules>&lt;module name="com.zeus.soap" slot="${zeus.soap.module.slot}" services="import" meta-inf="import" annotations="true"/&gt;</zeus.descriptor.extra.modules>
+    </properties>
+
     <dependencies>
+        <!-- zeus-sms demosu: com.zeus.soap'tan (CXF) opt-in SOAP istemcisi. -->
+        <dependency>
+            <groupId>com.zeus</groupId>
+            <artifactId>zeus-sms</artifactId>
+        </dependency>
         <!-- ================= Zeus Framework modülleri (WAR'a paketlenir) ================= -->
         <!-- Sürümler zeus BOM tarafından yönetilir; burada yazılmaz. -->
         <dependency>
