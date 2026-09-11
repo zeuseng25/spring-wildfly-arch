@@ -21,20 +21,9 @@
     <name>spring-wildfly-arch</name>
     <description>spring-wildfly-arch</description>
 
-    <properties>
-        <!-- zeus-sms opt-in: standart tip uygulama com.zeus.soap'u (CXF) descriptor'a elle ekler.
-             Slot değeri zeus-parent'tan (zeus.soap.module.slot) gelir. -->
-        <zeus.descriptor.extra.modules>&lt;module name="com.zeus.soap" slot="${zeus.soap.module.slot}" services="import" meta-inf="import" annotations="true"/&gt;</zeus.descriptor.extra.modules>
-        <!-- WAR dışlama listesini com.zeus ∪ com.zeus.soap birleşimine genişletir: yukarıdaki
-             opt-in olmadan CXF yığını yalnız com.zeus.soap module'ünde bulunur; bu satır
-             olmadan CXF jar'ları WAR'a DA girer (module kopyasının yanında ikinci kopya —
-             ClassCastException/LinkageError riski). Değer zeus-parent'ta ÜRETİLİR
-             (scripts/generate-war-excludes.sh), burada elle yazılmaz. -->
-        <zeus.war.packaging-excludes>${zeus.war.packaging-excludes.with-soap}</zeus.war.packaging-excludes>
-    </properties>
-
     <dependencies>
-        <!-- zeus-sms demosu: com.zeus.soap'tan (CXF) opt-in SOAP istemcisi. -->
+        <!-- zeus-sms demosu: CXF SOAP istemcisi. CXF artık paylaşımlı com.zeus module'ünde;
+             opt-in property GEREKMEZ. -->
         <dependency>
             <groupId>com.zeus</groupId>
             <artifactId>zeus-sms</artifactId>
