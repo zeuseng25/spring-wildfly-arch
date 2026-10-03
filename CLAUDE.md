@@ -49,6 +49,23 @@ HTTP → Controller → Service (interface + impl) → Repository (interface + i
 - Detay: `gelistirmeler/18-spring-ai-entegrasyonu.md` · sürüm gerekçesi:
   `gelistirmeler/17-spring-ai-surum-secimi.md` · framework: `../zeus-fw/gelistirmeler/15-zeus-ai.md`.
 
+### MCP Sunucusu — zeus-ai-mcp (`/api/mcp`)
+
+Aynı `@Tool` metotları **harici** AI ajanlarına da açılır (streamable HTTP / JSON-RPC):
+- **Yayın yüzeyi `config/McpConfig`'teki TEK bean'dir** (`ZeusMcpTools.of(productAiTools)`).
+  Classpath taraması YOK: bir `@Tool` metodu yazmak onu dışarı açmaz. Yeni tool dışarıya
+  açılacaksa bu listeye girer, ve `McpConfigTest`'teki beklenen liste güncellenir.
+- `ProductAiTools` / `ProductRepository` / `PRODUCT_PKG` **değişmedi** — model yeni bir veri yolu,
+  SQL üretimi veya DB kimliği görmez.
+- Erişim **paylaşılan sır** ile: `zeus.ai.mcp.token=${ZEUS_MCP_TOKEN:}` — sır repoda tutulmaz ve
+  **boşsa açılış reddedilir** (fail-closed). Bu bir kimlik değil taşıyıcı yetkidir; tool bazlı
+  yetki ve son kullanıcı token'ı **yoktur** (bilinen boşluk). Bu yüzden v1'de yayınlanan yüzey
+  **salt okunurdur**; yazma yapan tool eklenecekse yetki kontrolü metodun İÇİNDE olmalıdır.
+- `spring.ai.mcp.server.protocol=STREAMABLE` **açıkça yazılmalıdır** — yazılmazsa Spring AI
+  kullanım dışı SSE taşımasını yayınlar ve token filtresi onu korumaz.
+- Test property dosyası main'i gölgeler → MCP satırları `src/test/resources`'a da yazılır.
+- Detay: `gelistirmeler/19-mcp-sunucusu.md` · framework: `../zeus-fw/gelistirmeler/23-zeus-ai-mcp.md`.
+
 ### API Dokümantasyonu — OpenAPI 3 / Swagger
 springdoc-openapi v3 ile otomatik. Erişim (context `/spring-wildfly-arch`):
 - OpenAPI JSON: `/v3/api-docs` · Swagger UI: `/swagger-ui/index.html`

@@ -43,7 +43,7 @@
 
 - `zeus-parent`'taki `maven-war-plugin`, `zeus.war.packaging-excludes` property'sini kullanır. Bu property **DENYLIST**'tir ve `../zeus-fw/scripts/generate-war-excludes.sh` tarafından `zeus-wildfly-module`'ün bağımlılık kapanışından üretilir: **module'ün sağladığı** jar'lar dışlanır, module'de olmayan her şey WAR'da taşınır. `zeus-*` jar'ları listede yer almaz (module'e girmezler), dolayısıyla WAR'da kalırlar. Bu uygulamanın kapanışı module tarafından tam karşılandığı için sonuç WAR yine yalnızca zeus jar'ları + sınıflar.
   > Eskiden kural ters yöndeydi (`%regex[WEB-INF/lib/(?!zeus-).*\.jar]` — "zeus- olmayan her şeyi at"). O kuralda module'de bulunmayan bir bağımlılık **sessizce siliniyor** ve WildFly'da kriptik bir `NoClassDefFoundError` olarak ortaya çıkıyordu. Gerekçe ve ölçümler: `../zeus-fw/gelistirmeler/19-war-paketleme-module-farkindaligi.md`.
-- `../zeus-fw/scripts/install-zeus-module.sh` (platform scripti): `EXCLUDE_REGEX`'e `zeus-(base|logger|database|service|redis|batch)` eklendi → zeus-* jar'ları module'e **konmaz** (WAR'da oldukları için; çift sınıf/LinkageError önlenir).
+- `../zeus-fw/scripts/install-zeus-module.sh` (platform scripti): `EXCLUDE_REGEX` **`zeus-[a-z0-9-]+`** kalıbını içerir → zeus-* jar'larının **tamamı** (adı tek tek sayılmadan) module'e **konmaz**, WAR'da taşınır (çift sınıf/LinkageError önlenir). *Not: bu satır bir dönem modül adlarını tek tek sayıyordu (`zeus-(base|logger|database|service|redis|batch)`); kalıp o zamandan beri genelleştirildi, bu yüzden `zeus-ai`, `zeus-sms`, `zeus-ai-mcp` gibi sonradan eklenen modüller script'e dokunmadan kapsanır.*
 
 Bu sayede yalnızca zeus kodu değişince WAR yeniden deploy yeter; module (3. parti) değişmediği için WildFly restart gerekmez.
 
