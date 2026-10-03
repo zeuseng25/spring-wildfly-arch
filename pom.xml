@@ -62,6 +62,13 @@
             <artifactId>zeus-ai-mcp</artifactId>
         </dependency>
 
+        <!-- Çok adımlı araştırma ajanı: mevcut @Tool metotlarını kullanarak analiz koşusu
+             yürütür, ara çıktıları koşu kapsamlı çalışma alanına yazar. -->
+        <dependency>
+            <groupId>com.zeus</groupId>
+            <artifactId>zeus-ai-agent</artifactId>
+        </dependency>
+
         <!-- ============ 3. parti starter'lar (WAR'a KONMAZ, com.zeus module'ünden) ============ -->
         <!-- Boot 4: starter-web'in yerini starter-webmvc aldı. -->
         <dependency>

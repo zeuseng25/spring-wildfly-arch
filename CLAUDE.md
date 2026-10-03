@@ -49,6 +49,17 @@ HTTP → Controller → Service (interface + impl) → Repository (interface + i
 - Detay: `gelistirmeler/18-spring-ai-entegrasyonu.md` · sürüm gerekçesi:
   `gelistirmeler/17-spring-ai-surum-secimi.md` · framework: `../zeus-fw/gelistirmeler/15-zeus-ai.md`.
 
+#### Araştırma ajanı — zeus-ai-agent (`/api/agent/products/analysis`)
+
+`GET /api/agent/products/analysis`, mevcut `ai/ProductAiTools`'u kullanarak **çok adımlı** bir
+katalog analizi koşusu tetikler (`ai/ProductAnalysisAgent` + framework'ün `ZeusAgent`
+sözleşmesi). Veri yolu **değişmez** — model yine `ProductRepository` → Oracle `PRODUCT_PKG`
+üzerinden çalışır; ajanın eklediği tek şey adım adım ilerleme ve ara bulguların koşu kapsamlı bir
+çalışma alanına (`/bulgular.md`) yazılmasıdır. Koşu **senkron**dur, `zeus.ai.agent.max-duration`
+çağıranın HTTP timeout'undan küçük tutulmalıdır. Yanıt `stopReason` ("model bitirdi" mi "bütçe
+doldu" mu) ve `steps`'i dışarı verir. Detay: `gelistirmeler/20-arastirma-ajani.md` · framework:
+`../zeus-fw/gelistirmeler/24-zeus-ai-agent.md`.
+
 ### MCP Sunucusu — zeus-ai-mcp (`/api/mcp`)
 
 Aynı `@Tool` metotları **harici** AI ajanlarına da açılır (streamable HTTP / JSON-RPC):
