@@ -24,7 +24,7 @@ public class ProductAgentController {
 
         AgentResult<String> r = productAnalysisAgent.analyze(question);
         return new AgentRunResponse(r.output(), r.workspace(),
-                r.stats().steps(), r.stats().tokens(), r.stats().durationMs(),
-                r.stats().stopReason().name());
+                r.stats().steps(), r.stats().promptTokens(), r.stats().completionTokens(),
+                r.stats().durationMs(), r.stats().stopReason().name());
     }
 }

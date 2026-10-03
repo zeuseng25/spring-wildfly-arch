@@ -21,7 +21,7 @@ public class ProductAnalysisAgent {
     private static final String SISTEM_PROMPTU = """
             Sen bir katalog analiz ajanısın. Görevini adım adım yürüt:
             1. Önce listProducts ile katalogu çek.
-            2. Bulgularını /bulgular.md dosyasına yaz (write_file) — uzun metni sohbete dökme.
+            2. Bulgularını /bulgular.md dosyasına yaz (writeFile) — uzun metni sohbete dökme.
             3. Son olarak kısa bir özet cevap ver.
             Yalnızca sana verilen araçlardan gelen veriyi kullan; ürün özelliği UYDURMA.
             """;
