@@ -107,90 +107,101 @@ durabilsin diye. Bu uygulamada ayrıca bir HTTP timeout YAPILANDIRMASI yoktur (U
 varsayılanı); kalıcı çözüm (asenkron iş modeli) bilinçli olarak kapsam dışıdır — bkz.
 `../zeus-fw/gelistirmeler/24-zeus-ai-agent.md`.
 
-## Gerçek koşu — ölçüm (bu ortamda yapılabilen)
+## Gerçek koşu — ölçüm (canlı model ile, 2026-10-04)
 
-Bu ortamda **LLM API anahtarı yoktur** (`AI_API_KEY` ne kabukta ne de çalışan WildFly sürecinde
-tanımlı). Bu yüzden gerçek bir model koşusu tetiklenemedi; ölçülen şey **bütçesiz/anahtarsız hata
-yolu**dur — bu da gerçek ve kayda değer bir sonuçtur: hata, istemciye 500/502 veya stack trace
-olarak sızmadı, `DefaultZeusAgent`'ın yakala-bloğu tarafından soğuruldu ve HTTP 200 + `ERROR`
-olarak döndü.
+Aşağıdakilerin tamamı **gerçek bir OpenRouter anahtarıyla, WildFly üzerinde, canlı Oracle'a karşı**
+ölçülmüştür. (Bu dokümanın ilk sürümü ortamda anahtar olmadığı için yalnız hata yolunu
+ölçebilmişti; o kısım aşağıda "Hata yolu" başlığında korunuyor, çünkü kendi başına değerli.)
+
+Anahtar WildFly **sürecinin ortamında** olmalıdır — uygulama değeri açılışta okur, bu yüzden
+anahtarı sonradan tanımlamak için **restart** gerekir (yeniden deploy yetmez):
 
 ```bash
-export ZEUS_MCP_TOKEN="$(cat /tmp/zeus_mcp_token 2>/dev/null || openssl rand -hex 16)"
 export JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home
-cd ../zeus-fw && mvn clean install && cd ../spring-wildfly-arch && ./scripts/deploy.sh
-# NOT: yeni 3. parti jar yok → install-zeus-module.sh ve WildFly restart GEREKMEDİ.
+export AI_API_KEY='<openrouter-anahtarı>'
+$WILDFLY_HOME/bin/jboss-cli.sh --connect --command=:shutdown
+nohup $WILDFLY_HOME/bin/standalone.sh > /tmp/wf.log 2>&1 &
 
 curl -s "http://127.0.0.1:8080/spring-wildfly-arch/api/agent/products/analysis" \
-     -H "X-Correlation-Id: ajankanit1" | tee /tmp/agent.out
+     -H "X-Correlation-Id: canli1"
 ```
 
-Gerçek yanıt (ölçüldü, 2026-10-04, **I3 fix öncesi DTO şekliyle** — o zamanki `AgentRunResponse`
-tek bir `tokens` alanı taşıyordu; fix sonrası aynı koşu `"promptTokens":0,"completionTokens":0`
-verir, değer anlamı DEĞİŞMEDİ çünkü ilk model çağrısı 401'de düştüğü için ikisi de sıfırdı):
+### 1) Koşu modelin kendi kararıyla bitti
 
 ```json
-{"answer":null,"workspace":{},"steps":0,"tokens":0,"durationMs":336,"stopReason":"ERROR"}
+{"stopReason":"MODEL_FINISHED","steps":3,
+ "promptTokens":7366,"completionTokens":659,"durationMs":10339}
 ```
 
-Sunucu logunda aynı correlation-id altında:
+Üç adım, ~10 saniye, 8.025 token. Bütçe (10 adım / 2 dk) **dolmadı**; koşuyu model bitirdi.
 
-```
-[ajankanit1] c.z.framework.ai.agent.DefaultZeusAgent : Ajan koşusu hata ile bitti: 401: Missing Authentication header
-[ajankanit1] c.z.framework.ai.agent.DefaultZeusAgent : Ajan koşusu bitti — adım=0, token=0, süre=336 ms, sebep=ERROR, dosya=0
-[ajankanit1] c.z.f.logger.RequestLoggingFilter        : GET /spring-wildfly-arch/api/agent/products/analysis -> 200 (372 ms)
-```
+### 2) Ajan raporunu çalışma alanına yazdı ve veri GERÇEK
 
-Yorum: `401 Missing Authentication header` OpenRouter'ın (varsayılan `AI_BASE_URL`) sahte anahtarı
-(`degistir`) reddetmesidir — model ilk çağrıda başarısız olduğu için **hiçbir tool hiç
-çağrılmadı** (`adım=0`), dolayısıyla bu koşuda `ProductAiTools` log satırı YOKTUR (adım 0'da
-beklenen budur — tool çağrısı hiç başlamadı). `workspace` boş `{}` döndü (beklenen; hiçbir
-`writeFile` çağrısı olmadı), ama alan **vardı** — `AgentResult.workspace()` hata durumunda bile
-dönüyor (R: hata yönetimi kontratı doğrulandı). HTTP durumu **200**, gövdede stack trace **yok** —
-Task 4'ün "koşu hata alsa da workspace döner, istisna sızmaz" iddiası bu ölçümle doğrulandı.
+Dönen `workspace` tek dosya içeriyor: **`/bulgular.md`**. İçeriği (kısaltılmış):
 
-### Canlı model gerektirdiği için yapılamayanlar
+```markdown
+# Katalog Ürün Analizi
 
-Aşağıdakiler geçerli bir `AI_API_KEY` olmadan ÖLÇÜLEMEDİ; koddan veya tasarımdan bir eksiklik
-DEĞİL, bu ortamın kısıtı:
-
-1. **`/bulgular.md` dosyasının gerçek ürün verisiyle yazılması** — model `writeFile` tool'unu
-   hiç çağıramadı (ilk çağrı 401'de düştü).
-2. **`stopReason = MODEL_FINISHED`** — normal bitişin ölçümü; bu koşuda `ERROR` ile sonuçlandı.
-3. **Correlation-id altında `ProductAiTools` + `DefaultZeusAgent` ikilisinin birlikte görünmesi**
-   — `ProductAiTools` satırı yalnızca model en az bir tool çağırdığında basılır; bu koşuda hiç
-   tool çağrılmadı.
-4. **Bütçe ölçümü (`zeus.ai.agent.max-steps=1` → `stopReason = STEP_BUDGET`)** — bütçenin adım
-   sayarak durdurduğunu göstermek için modelin önce en az bir adım BAŞARIYLA tamamlaması gerekir;
-   anahtarsız ortamda ilk adımda zaten `ERROR` ile düşüldüğü için `max-steps=1` ile
-   `max-steps=10` arasında gözlemlenebilir bir fark YOKTUR (ikisi de aynı 401'de aynı adımda
-   durur). Bu ölçüm anahtarla tekrarlanmadan geçerli sayılamaz.
-
-> **GÜNCELLEME (C1 fix sonrası) — bu prosedür artık GEÇERLİ, önceden geçersizdi.** Framework
-> tarafında (`../zeus-fw/gelistirmeler/24-zeus-ai-agent.md`, C1) ölçülen kusur: `AgentSpec.of(...)`
-> bütçeyi her zaman `AgentBudget.defaults()` (15 adım) ile DOLDURUYORDU, `zeus.ai.agent.max-steps`
-> property'si (burada `10`) hiçbir koşuda OKUNMUYORDU. Yani C1 ÖNCESİ aşağıdaki
-> `max-steps=1` denemesi bile gerçek davranışı ÖLÇMEZDİ — anahtar olsa da `stopReason` 1 adımda
-> değil 15 adımda `STEP_BUDGET` olurdu (ya da model 15'ten önce bitirirse hiç olmazdı), ve bu fark
-> sessizce geçerdi. C1 fix'ten sonra `AgentSpec.of(...)` bütçeyi `null` bırakır ve
-> `ZeusAgentAutoConfiguration`'ın property'lerden kurduğu bütçe gerçekten uygulanır — bu yüzden
-> aşağıdaki prosedür artık **anlamlı bir doğrulamadır**, sadece hâlâ geçerli bir `AI_API_KEY`
-> gerektirdiği için bu ortamda **henüz çalıştırılmadı**.
-
-**Anahtarla tekrarlanacak tek komut** (yukarıdaki curl'ün aynısı, yalnızca ortamda geçerli bir
-`AI_API_KEY` tanımlıyken):
-
-```bash
-export AI_API_KEY=<gerçek-anahtar>
-curl -s "http://127.0.0.1:8080/spring-wildfly-arch/api/agent/products/analysis" \
-     -H "X-Correlation-Id: ajankanit1" | tee /tmp/agent.out
-grep ajankanit1 $WILDFLY_HOME/standalone/log/server.log
+| Ürün Adı | Fiyat (TL) | Stok Adedi |
+|----------|------------|------------|
+| Laptop   | 25.000     | 10         |
+| Mouse    | 350        | 100        |
+| Keyboard | 750        | 50         |
+| Monitor  | 5.500      | 20         |
+| Webcam   | 1.200      | 30         |
 ```
 
-Bütçe ölçümü için ayrıca `zeus.ai.agent.max-steps=1` ile yeniden deploy edip aynı isteği tekrar
-atmak, `stopReason = STEP_BUDGET` beklemek ve ardından değeri `10`'a geri almak gerekir. C1
-fix'ten önce bu adım geçersiz bir sonuç üretirdi (yukarıdaki güncellemeye bakın); artık
-`zeus.ai.agent.max-steps` property'si gerçekten uygulandığı için bu deneme geçerli bir kanıttır.
+Oracle'daki gerçek satırlarla karşılaştırıldı — **beşi de birebir aynı**
+(`Laptop|25000|10`, `Mouse|350|100`, `Keyboard|750|50`, `Monitor|5500|20`, `Webcam|1200|30`).
+Uydurulmuş ürün ya da uydurulmuş değer yok. Uzun tablo sohbete değil **dosyaya** yazıldı; sohbete
+yalnızca kısa özet döndü — harness'ın varlık sebebi tam olarak bu.
+
+### 3) Veri yolu kanıtı — tek correlation-id altında üç satır
+
+```
+[default task-2] [canli…] ProductAiTools       : AI tool çağrıldı: listProducts -> 5 kayıt
+[default task-2] [canli…] DefaultZeusAgent     : Ajan koşusu bitti — adım=3, token=8025, süre=10339 ms, sebep=MODEL_FINISHED
+[default task-2] [canli…] RequestLoggingFilter : GET /api/agent/products/analysis -> 200 (10388 ms)
+```
+
+Üçü de aynı istek thread'inde (`default task-2`, bir Undertow worker'ı). Bu iki şeyi birden
+kanıtlıyor: veri uygulamanın **mevcut** `ProductAiTools` → `ProductRepository` → `PRODUCT_PKG`
+yolundan geldi (yeni yol açılmadı), ve tool gövdesi istek thread'inde koştuğu için MDC'deki
+correlation-id koşu boyunca korundu.
+
+### 4) Bütçe gerçekten kesiyor
+
+`zeus.ai.agent.max-steps=1` ile yeniden deploy edilip (restart gerekmez) tekrar çağrıldığında:
+
+```json
+{"stopReason":"STEP_BUDGET","steps":1,"workspace":{}}
+```
+```
+DefaultZeusAgent : Ajan koşusu bitti — adım=1, token=3294, süre=3730 ms, sebep=STEP_BUDGET
+```
+
+Açılış logu da yapılandırılan bütçeyi bildirdi: `varsayılan bütçe: 1 adım / 200000 token / PT2M`
+(property geri alındığında yine `10 adım … PT2M`). Bu, `zeus.ai.agent.*` property'lerinin
+koşuya **gerçekten** ulaştığının uçtan uca kanıtıdır — nihai review'da bu bağlantının kopuk
+olduğu bulunmuş ve düzeltilmişti; burada yalnız birim testiyle değil, canlı koşuyla doğrulanıyor.
+
+Ayrıca: bütçe dolduğunda istisna fırlatılmadı, HTTP 200 döndü ve `stopReason` durumu açıkça
+söyledi — "model bitirdi" ile "bütçe doldu" aynı gövdeye karışmıyor.
+
+### Hata yolu (anahtarsız ölçüm, korunuyor)
+
+Anahtar tanımlı değilken aynı uç şunu döndürmüştü:
+
+```json
+{"answer":null,"workspace":{},"steps":0,"promptTokens":0,"completionTokens":0,
+ "durationMs":81,"stopReason":"ERROR"}
+```
+
+Sunucu logunda sağlayıcının `401`'i aynı correlation-id altında görünüyordu. İstemciye **stack
+trace sızmadı ve 502 dönmedi**: `DefaultZeusAgent` hatayı soğurup `StopReason.ERROR` ile normal
+bir sonuç döndürdü. Çağıran `stopReason`'a bakarak `answer`'a güvenip güvenmeyeceğine karar
+verebiliyor.
+
 
 ## Bilinen boşluklar
 
@@ -205,12 +216,13 @@ fix'ten önce bu adım geçersiz bir sonuç üretirdi (yukarıdaki güncellemeye
 - `question` parametresi doğrulanmaz (`@RequestParam` serbest metin) — model promptuna doğrudan
   girer; bu bir kanıt ucu olduğu için giriş doğrulama/oran sınırlama bilinçli olarak kapsam
   dışıdır.
-- Bütçenin gerçekten durdurduğu (`STEP_BUDGET`) bu ortamda ölçülemedi (yukarıya bakın);
-  framework tarafında `BudgetEligibilityCheckerTest` ile `StubChatModel` kullanılarak zaten
-  ölçülmüştür (`zeus-ai-agent/src/test`), ama bu uygulamanın gerçek WildFly+Oracle+model
-  zincirinde teyidi anahtar gerektirir.
-- **`zeus.ai.agent.max-steps`/`max-duration` property'lerinin GERÇEKTEN uygulandığı** (C1 fix,
-  `../zeus-fw/gelistirmeler/24-zeus-ai-agent.md`) framework tarafında `DefaultZeusAgentTest`'teki
-  `StubChatModel` tabanlı uçtan uca testle kanıtlandı (küçük bir yapılandırılmış varsayılan
-  bütçeyle koşu 15 değil o küçük sınırda durur). Bu uygulamada aynı teyit yine bir `AI_API_KEY`
-  gerektirir — henüz yapılmadı, yukarıdaki "GÜNCELLEME" notuna bakın.
+- Bütçe ve property bağlantısı artık **bu uygulamada da** canlı modelle ölçüldü
+  (yukarıdaki "4) Bütçe gerçekten kesiyor"): `max-steps=1` ile koşu `STEP_BUDGET` ile durdu.
+  Framework tarafında aynı şey `BudgetEligibilityCheckerTest` ve `DefaultZeusAgentTest`'te
+  `StubChatModel` ile test edilmiş durumda (`zeus-ai-agent/src/test`); artık modelden bağımsız
+  test ile gerçek zincir birbirini doğruluyor. **Kalan boşluk:** `TOKEN_BUDGET` ve
+  `TIME_BUDGET` yolları bu uygulamada canlı ölçülmedi — yalnız `STEP_BUDGET` ölçüldü; diğer
+  ikisi framework birim testleriyle kapsanıyor.
+- Model çıktısının **doğruluğu** test edilmiyor. Ölçümde tablo Oracle ile birebir çıktı, ama bu
+  tek bir koşudur; ajanın raporunun her zaman doğru olacağını garanti eden bir mekanizma
+  (doğrulama tool'u, şema zorlaması) yoktur. Uç bir kanıt ucudur, rapor üretim kaynağı değil.
